@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="REMA 1000 Distribution work dashboard — salary, calendar, projections." />
+  <title>REMA 1000 — Work Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#d62828" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-brand"><div class="logo-icon">R1K</div><span>Work Dashboard</span></div>
+    <ul class="nav-links">
+      <li><a href="#" data-section="sec-dashboard" class="active">📊 Overview</a></li>
+      <li><a href="#" data-section="sec-calendar">📅 Calendar</a></li>
+      <li><a href="#" data-section="sec-projection">🔮 Projection</a></li>
+      <li><a href="#" data-section="sec-su">🎓 SU Limit</a></li>
+      <li><a href="#" data-section="sec-salary">💰 Salary</a></li>
+      <li><a href="#" data-section="sec-pay-system">⚙️ Pay System</a></li>
+      <li><a href="#" data-section="sec-contract">📄 Contract</a></li>
+    </ul>
+  </nav>
+
+  <main class="main">
+
+    <!-- ═══ OVERVIEW ═══ -->
+    <section class="section active" id="sec-dashboard">
+      <div class="section-header">
+        <h1>Earnings Overview</h1>
+        <p>Actual payslip earnings (Jan–Apr) + projected from your calendar (May–Dec)</p>
+      </div>
+      <div class="stats-grid">
+        <div class="card stat-card"><div class="stat-icon green">💵</div><div class="stat-value" id="stat-total-earned">–</div><div class="stat-label" id="stat-total-earned-label">Work Net Received So Far</div></div>
+        <div class="card stat-card projection-highlight"><div class="stat-icon green">🔮</div><div class="stat-value" id="stat-projected-year">–</div><div class="stat-label" id="stat-projected-year-label">Full Year Work Net</div></div>
+        <div class="card stat-card"><div class="stat-icon blue">🎓</div><div class="stat-value" id="stat-su-net">–</div><div class="stat-label" id="stat-su-net-label">Full Year SU Net (B-Card)</div></div>
+        <div class="card stat-card projection-highlight"><div class="stat-icon purple">💎</div><div class="stat-value" id="stat-combined-net">–</div><div class="stat-label">Full Year Total Net (Work + SU + Bonuses)</div></div>
+        <div class="card stat-card"><div class="stat-icon amber">📊</div><div class="stat-value" id="stat-avg-monthly">–</div><div class="stat-label">Avg Monthly Net (All Income)</div></div>
+        <div class="card stat-card"><div class="stat-icon red">⏱️</div><div class="stat-value" id="stat-total-hours">–</div><div class="stat-label" id="stat-total-hours-label">Hours Worked So Far</div></div>
+        <div class="card stat-card"><div class="stat-icon purple">🏦</div><div class="stat-value" id="stat-total-pension">–</div><div class="stat-label" id="stat-total-pension-label">Pension Deposited So Far</div></div>
+        <div class="card stat-card"><div class="stat-icon blue">🌴</div><div class="stat-value" id="stat-holiday-pay">–</div><div class="stat-label">Holiday Pay (Gross, Before Tax)</div></div>
+      </div>
+      <div class="card full-width">
+        <div class="card-title"><span class="dot"></span>Net Pay — Actual vs Projected</div>
+        <div class="bar-chart" id="net-pay-bars" style="height:200px"></div>
+        <div style="display:flex;gap:16px;margin-top:10px;justify-content:center">
+          <span style="font-size:0.75rem;color:var(--text-secondary)">🟩 Actual</span>
+          <span style="font-size:0.75rem;color:var(--text-secondary)">🟩 <span style="opacity:0.5">Projected</span></span>
+        </div>
+      </div>
+      <div class="card full-width">
+        <div class="card-title"><span class="dot"></span>Full Year Breakdown</div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Month</th><th>Period</th><th>Hours</th><th>Gross</th><th>Net</th><th>Status</th></tr></thead>
+          <tbody id="monthly-breakdown-body"></tbody>
+        </table></div>
+      </div>
+      <div class="card full-width">
+        <div class="card-title"><span class="dot"></span>Bonuses &amp; Extra Pay</div>
+        <div class="two-col" style="margin-bottom:0">
+          <div>
+            <div class="info-row" style="flex-direction:column;align-items:flex-start;gap:8px">
+              <div style="display:flex;justify-content:space-between;width:100%"><span class="info-label">Feriepenge Earned (12.5%)</span><span class="info-value" style="color:var(--accent-green)" id="dynamic-holiday-earn-val">–</span></div>
+              <div style="height:10px;width:100%;background:var(--bg-subtle);border-radius:5px;overflow:hidden">
+                <div id="holiday-earn-progress" style="height:100%;width:0%;background:linear-gradient(90deg, #2d936c, #1a7a5a);transition:width 0.6s"></div>
+              </div>
+            </div>
+            <div class="info-row"><span class="info-label">Summer Bonus (before tax)</span><span class="info-value" style="color:var(--accent-amber)">~8.000 DKK</span></div>
+            <div class="info-row"><span class="info-label">Winter Bonus (before tax)</span><span class="info-value" style="color:var(--accent-amber)">~8.000 DKK</span></div>
+          </div>
+          <div>
+            <div class="info-row"><span class="info-label">Vacation Days Accrued</span><span class="info-value"><span class="badge badge-green">12.15 days</span></span></div>
+            <div class="info-row"><span class="info-label">Feriefridage Remaining</span><span class="info-value"><span class="badge badge-blue">5.00 days</span></span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ CALENDAR ═══ -->
+    <section class="section" id="sec-calendar">
+      <div class="section-header">
+        <h1>Work Schedule 2026</h1>
+        <p>Click any day to add/change shifts. Select a tool below, then click days on the calendar.</p>
+      </div>
+      <div class="stats-grid">
+        <div class="card stat-card"><div class="stat-icon green">📅</div><div class="stat-value" id="cal-total">–</div><div class="stat-label">Total Work Days</div></div>
+        <div class="card stat-card"><div class="stat-icon blue">🔵</div><div class="stat-value" id="cal-normal">–</div><div class="stat-label">Normal Days</div></div>
+        <div class="card stat-card"><div class="stat-icon amber">🟡</div><div class="stat-value" id="cal-extra">–</div><div class="stat-label">Extra Days (150/200%)</div></div>
+        <div class="card stat-card"><div class="stat-icon purple">🟣</div><div class="stat-value" id="cal-holiday">–</div><div class="stat-label">Holiday Days (150/200%)</div></div>
+        <div class="card stat-card"><div class="stat-icon orange">🟠</div><div class="stat-value" id="cal-sick">–</div><div class="stat-label">Sick Days (Base Pay)</div></div>
+        <div class="card stat-card"><div class="stat-icon red">🔴</div><div class="stat-value" id="cal-overtime">–</div><div class="stat-label">Overtime Days (200%)</div></div>
+        <div class="card stat-card"><div class="stat-icon gray">⚪</div><div class="stat-value" id="cal-vacation">–</div><div class="stat-label">Vacation (No Pay)</div></div>
+      </div>
+      <div class="cal-controls">
+        <button class="btn tool-btn active-tool" data-tool="n" onclick="setTool('n')">🟢 Normal Day</button>
+        <button class="btn tool-btn" data-tool="e" onclick="setTool('e')">🟡 Extra Day</button>
+        <button class="btn tool-btn" data-tool="h" onclick="setTool('h')">🟣 Holiday</button>
+        <button class="btn tool-btn" data-tool="s" onclick="setTool('s')">🟠 Sick Day</button>
+        <button class="btn tool-btn" data-tool="o" onclick="setTool('o')">⏰ Toggle Overtime</button>
+        <button class="btn tool-btn" data-tool="v" onclick="setTool('v')">⚪ Vacation</button>
+        <button class="btn tool-btn" data-tool="x" onclick="setTool('x')">❌ Remove Day</button>
+        <span style="color:var(--text-muted);font-size:0.8rem">│</span>
+        <label style="font-size:0.8rem;color:var(--text-secondary);font-weight:500">Shift hours:</label>
+        <input type="number" id="shift-hours-input" class="shift-hours-input" value="7.25" min="1" max="24" step="0.25" />
+        <span style="color:var(--text-muted);font-size:0.8rem">│</span>
+        <button class="btn btn-reset" onclick="resetCalendar()">↺ Reset</button>
+        <span style="color:var(--text-muted);font-size:0.8rem">│</span>
+        <button class="btn" onclick="exportData()" style="color:var(--accent-blue);border-color:var(--accent-blue)">💾 Export Data</button>
+        <button class="btn" onclick="document.getElementById('import-file').click()" style="color:var(--accent-green);border-color:var(--accent-green)">📂 Import Data</button>
+        <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)" />
+      </div>
+      <div class="cal-legend">
+        <div class="cal-legend-item"><div class="swatch sw-normal"></div> Normal Shift</div>
+        <div class="cal-legend-item"><div class="swatch sw-extra"></div> Extra Day (150/200%)</div>
+        <div class="cal-legend-item"><div class="swatch sw-holiday"></div> Holiday (150/200%)</div>
+        <div class="cal-legend-item"><div class="swatch sw-sick"></div> Sick Day</div>
+        <div class="cal-legend-item">⏰ Overtime Modifier (200%)</div>
+        <div class="cal-legend-item"><div class="swatch sw-vacation"></div> Vacation</div>
+        <div class="cal-legend-item"><div class="swatch sw-today"></div> Today</div>
+        <div class="cal-legend-item"><div class="swatch sw-next-work"></div> Next Work Day</div>
+        <div class="cal-legend-item"><div class="swatch sw-off"></div> Day Off</div>
+      </div>
+      <div class="calendar-grid" id="calendar-months"></div>
+    </section>
+
+    <!-- ═══ PROJECTION ═══ -->
+    <section class="section" id="sec-projection">
+      <div class="section-header">
+        <h1>Expected Income to Year End</h1>
+        <p>Based on your calendar schedule. Edit the calendar to update projections instantly.</p>
+      </div>
+      <div class="stats-grid">
+        <div class="card stat-card"><div class="stat-icon green">✅</div><div class="stat-value" id="proj-earned">–</div><div class="stat-label" id="proj-earned-label">Work Net Received So Far</div></div>
+        <div class="card stat-card"><div class="stat-icon blue">📈</div><div class="stat-value" id="proj-future-net">–</div><div class="stat-label" id="proj-future-label">Remaining Work Net (From Calendar)</div></div>
+        <div class="card stat-card"><div class="stat-icon amber">🎁</div><div class="stat-value" id="proj-bonus-net">–</div><div class="stat-label">Bonuses + Holiday Pay Net</div></div>
+        <div class="card stat-card projection-highlight"><div class="stat-icon green">🎯</div><div class="stat-value" id="proj-year-net">–</div><div class="stat-label">Full Year Work Net (incl. Bonuses)</div></div>
+        <div class="card stat-card"><div class="stat-icon blue">🎓</div><div class="stat-value" id="proj-su-received">–</div><div class="stat-label" id="proj-su-received-label">SU Net Received So Far</div></div>
+        <div class="card stat-card"><div class="stat-icon blue">🎓</div><div class="stat-value" id="proj-su-net">–</div><div class="stat-label" id="proj-su-net-label">Full Year SU Net (12 Months)</div></div>
+        <div class="card stat-card projection-highlight"><div class="stat-icon purple">💎</div><div class="stat-value" id="proj-grand-net">–</div><div class="stat-label">Full Year Total Net (Work + SU + Bonuses)</div></div>
+      </div>
+      <div class="card full-width">
+        <div class="card-title"><span class="dot"></span><span id="proj-table-title">Monthly Projection — Based on Calendar</span></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Month</th><th>Normal</th><th>Extra</th><th>Holiday</th><th>Sick</th><th>Overtime</th><th>Vacation</th><th>Exp. Hours</th><th>Gross</th><th>Work Net</th><th>SU Net</th><th>Month Total</th></tr></thead>
+          <tbody id="proj-table-body"></tbody>
+        </table></div>
+      </div>
+      <div class="card full-width">
+        <div class="card-title"><span class="dot"></span>How Projections Are Calculated</div>
+        <div class="pay-system-cards">
+          <div class="pay-info-card"><h4>📐 Normal Day</h4><p>Shift hours × 158.45 DKK/h + supplements (lager 9.65 + frost 8.55 + shift premium). Weekday shift premium: 49.10/h. Weekend: 106.65/h.</p></div>
+          <div class="pay-info-card"><h4>⚡ Extra Day</h4><p>First 3 hours at <strong>150%</strong> of hourly rate, remaining hours at <strong>200%</strong>. Same supplements apply on top.</p></div>
+          <div class="pay-info-card"><h4>🎉 Holiday Day</h4><p>Same as Extra: first 3h at <strong>150%</strong>, rest at <strong>200%</strong>. Supplements still apply.</p></div>
+          <div class="pay-info-card"><h4>🔴 Overtime Day</h4><p>Normal shift pay + OT hours at <strong>200%</strong> of hourly rate.</p></div>
+          <div class="pay-info-card"><h4>🟠 Sick Day</h4><p>Paid at normal base rate (including standard supplements).</p></div>
+          <div class="pay-info-card"><h4>⚪ Vacation Day</h4><p>Days not worked. Earns 0 DKK, but decreases expected hours.</p></div>
+          <div class="pay-info-card"><h4>🧮 Deductions</h4><p>AM-bidrag (8%) → A-skat (38% with 5,652 DKK fradrag) → Pension (2%) → ATP (99 DKK) → Canteen (84 DKK).</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ SU LIMIT ═══ -->
+    <section class="section" id="sec-su">
+      <div class="section-header">
+        <h1>🎓 SU Income Limit (Fribeløb)</h1>
+        <p>Track your annual income against the Danish SU allowance limits for 2026</p>
+      </div>
+
+      <!-- Education Type -->
+      <div class="card full-width" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+        <label style="font-size:0.85rem;font-weight:600">Education type:</label>
+        <select id="su-edu-select" style="padding:8px 14px;border:1px solid var(--border-color);border-radius:8px;font-size:0.85rem;font-family:Inter,sans-serif;background:white;font-weight:500">
+          <option value="videregaaende">Videregående uddannelse (university/college)</option>
+          <option value="ungdom">Ungdomsuddannelse (high school/vocational)</option>
+        </select>
+        <span style="font-size:0.78rem;color:var(--text-secondary)">This affects your monthly fribeløb when receiving SU</span>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="card stat-card"><div class="stat-icon blue">📏</div><div class="stat-value" id="su-annual-limit">–</div><div class="stat-label">Annual Fribeløb</div></div>
+        <div class="card stat-card"><div class="stat-icon amber">💰</div><div class="stat-value" id="su-annual-income">–</div><div class="stat-label">Annual Income (A-indkomst)</div></div>
+        <div class="card stat-card"><div class="stat-icon green">✅</div><div class="stat-value" id="su-remaining">–</div><div class="stat-label">Remaining Under Limit</div></div>
+        <div class="card stat-card"><div class="stat-icon red">📊</div><div class="stat-value" id="su-pct">–</div><div class="stat-label">% of Limit Used</div></div>
+      </div>
+
+      <!-- Progress Bar -->
+      <div class="card full-width">
+        <div class="card-title"><span class="dot"></span>Annual Progress</div>
+        <div style="height:24px;background:var(--bg-subtle);border-radius:12px;overflow:hidden;margin-bottom:10px">
+          <div id="su-progress-fill" style="height:100%;border-radius:12px;transition:width 0.6s,background 0.3s;width:0%"></div>
+        </div>
+        <p id="su-progress-text" style="font-size:0.85rem;color:var(--text-secondary);text-align:center;font-weight:600;margin-bottom:4px"></p>
+        <p id="su-progress-extra" style="font-size:0.8rem;color:var(--text-muted);text-align:center"></p>
+      </div>
+
+      <!-- Monthly Table -->
+      <div class="card full-width">
+        <div class="card-title"><span class="dot"></span>Monthly Breakdown</div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Month</th><th>SU Status</th><th>Limit</th><th>A-indkomst (Gross− 8%)</th><th>Margin</th><th>Usage</th></tr></thead>
+          <tbody id="su-table-body"></tbody>
+        </table></div>
+      </div>
+
+      <!-- Info -->
+      <div class="card full-width">
+        <div class="card-title"><span class="dot"></span>How the SU Fribeløb Works</div>
+        <div class="pay-system-cards">
+          <div class="pay-info-card"><h4>📏 Fribeløb</h4><p>The maximum you can earn alongside SU without repaying any. Calculated on <strong>A-indkomst</strong> (Gross income minus 8% AM-bidrag). <em>Note: The SU department does <strong>not</strong> take the 8% AM-bidrag you pay into account. It is completely ignored and does not eat into your limit!</em></p></div>
+          <div class="pay-info-card"><h4>🎓 Videregående (2026)</h4><p>With SU: <strong>20,749 DKK/month</strong>. Without SU/orlov: <strong>23,598 DKK</strong>. Not in education: <strong>45,420 DKK</strong>.</p></div>
+          <div class="pay-info-card"><h4>🏫 Ungdom (2026)</h4><p>With SU: <strong>15,297 DKK/month</strong>. Without SU/orlov: <strong>23,598 DKK</strong>. Not in education: <strong>45,420 DKK</strong>.</p></div>
+          <div class="pay-info-card"><h4>📅 Annual Calculation</h4><p>The limit is calculated for the full <strong>calendar year</strong>. You can earn more in one month and less in another — only the annual total matters.</p></div>
+          <div class="pay-info-card"><h4>⚠️ Exceeding the Limit</h4><p>If your total annual income exceeds the fribeløb, you must <strong>repay part of your SU</strong>. Check su.dk for exact repayment calculations.</p></div>
+          <div class="pay-info-card"><h4>💡 Tip</h4><p>You can <strong>opt out of SU</strong> in high-earning months to get a higher fribeløb for that month (23,598 DKK instead of 20,749/15,297). Use the dropdown per month above.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ SALARY DETAILS ═══ -->
+    <section class="section" id="sec-salary">
+      <div class="section-header"><h1>Salary Details</h1><p>Detailed payslip breakdown for each month (Jan–Apr 2026)</p></div>
+      <div id="salary-details"></div>
+    </section>
+
+    <!-- ═══ PAY SYSTEM ═══ -->
+    <section class="section" id="sec-pay-system">
+      <div class="section-header"><h1>How the Pay System Works</h1><p>Understanding your compensation at REMA 1000 Distribution</p></div>
+      <div class="card full-width"><div class="card-title"><span class="dot"></span>Compensation Structure</div>
+        <div class="pay-system-cards">
+          <div class="pay-info-card"><h4>💰 Hourly Wage</h4><p>Base rate: <strong>158.45 DKK/h</strong> (normal løn + lagertillæg). Pay period: 15th–14th.</p></div>
+          <div class="pay-info-card"><h4>🏭 Warehouse Supplement</h4><p><strong>9.65 DKK/h</strong> extra per the 3F collective agreement.</p></div>
+          <div class="pay-info-card"><h4>❄️ Cold Storage</h4><p><strong>8.55 DKK/h</strong> for refrigerated/frozen areas.</p></div>
+          <div class="pay-info-card"><h4>⏰ Overtime</h4><p><strong>50%:</strong> 1.5× rate. <strong>100%:</strong> 2× rate.</p></div>
+          <div class="pay-info-card"><h4>🌙 Shift Premiums</h4><p>Weekday: ~49.10 DKK/h. Weekend: ~106.65 DKK/h.</p></div>
+          <div class="pay-info-card"><h4>🎁 Bonus</h4><p>Variable monthly (270–1,235 DKK). Summer &amp; Winter bonuses ~8,000 DKK each.</p></div>
+        </div>
+      </div>
+      <div class="card full-width"><div class="card-title"><span class="dot"></span>Deductions</div>
+        <div class="pay-system-cards">
+          <div class="pay-info-card"><h4>🏛️ AM-bidrag</h4><p><strong>8%</strong> labour market contribution, deducted before tax.</p></div>
+          <div class="pay-info-card"><h4>📋 A-skat</h4><p><strong>38%</strong> income tax. Monthly fradrag: <strong>5,652 DKK</strong>.</p></div>
+          <div class="pay-info-card"><h4>🏦 Pension</h4><p>You: <strong>2%</strong>. Employer: <strong>11%</strong>. Via PensionDanmark.</p></div>
+          <div class="pay-info-card"><h4>📊 ATP</h4><p>~33–99 DKK/month statutory pension.</p></div>
+          <div class="pay-info-card"><h4>🍽️ Canteen</h4><p>56–168 DKK/month meal deduction.</p></div>
+          <div class="pay-info-card"><h4>🛡️ Group Life</h4><p>~15–17 DKK/month employer-paid insurance.</p></div>
+        </div>
+      </div>
+      <div class="card full-width"><div class="card-title"><span class="dot"></span>Savings &amp; Benefits</div>
+        <div class="pay-system-cards">
+          <div class="pay-info-card"><h4>🌴 Holiday Pay</h4><p><strong>12.5%</strong> of eligible salary. 2.08 days/month. 20,000 DKK earned.</p></div>
+          <div class="pay-info-card"><h4>💼 Særlig Opsparing</h4><p><strong>9–10%</strong> of eligible pay. Paid out June + December.</p></div>
+          <div class="pay-info-card"><h4>🎯 Fritvalg (6.75%)</h4><p>For extra days off or payout. 3F agreement benefit.</p></div>
+          <div class="pay-info-card"><h4>📅 Søgnehelligdage</h4><p>Public holiday compensation at normal rate.</p></div>
+          <div class="pay-info-card"><h4>🏖️ Feriefridage</h4><p><strong>5 extra holiday days</strong>/year beyond the 25 standard.</p></div>
+          <div class="pay-info-card"><h4>💳 Payment</h4><p>Monthly in arrears to NemKonto. Period: 15th–14th.</p></div>
+        </div>
+      </div>
+      <div class="card full-width"><div class="card-title"><span class="dot"></span>Pay Flow</div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;padding:16px 0">
+          <div class="badge badge-blue" style="font-size:0.82rem;padding:9px 16px">Hours × Rate</div><span style="color:var(--text-muted)">→</span>
+          <div class="badge badge-green" style="font-size:0.82rem;padding:9px 16px">+ Supplements</div><span style="color:var(--text-muted)">→</span>
+          <div class="badge badge-amber" style="font-size:0.82rem;padding:9px 16px">= Gross</div><span style="color:var(--text-muted)">→</span>
+          <div class="badge badge-red" style="font-size:0.82rem;padding:9px 16px">− AM 8%</div><span style="color:var(--text-muted)">→</span>
+          <div class="badge badge-red" style="font-size:0.82rem;padding:9px 16px">− A-skat 38%</div><span style="color:var(--text-muted)">→</span>
+          <div class="badge badge-red" style="font-size:0.82rem;padding:9px 16px">− Pension + ATP</div><span style="color:var(--text-muted)">→</span>
+          <div class="badge badge-green" style="font-size:0.9rem;padding:10px 20px;font-weight:800">💵 Net → NemKonto</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ CONTRACT ═══ -->
+    <section class="section" id="sec-contract">
+      <div class="section-header"><h1>Employment Contract</h1><p>Key details from your Ansættelsesaftale</p></div>
+      <div class="contract-grid">
+        <div class="card"><div class="card-title"><span class="dot"></span>Personal Info</div>
+          <div class="info-row"><span class="info-label">Name</span><span class="info-value">Iulian Plop</span></div>
+          <div class="info-row"><span class="info-label">Employee No.</span><span class="info-value">5492</span></div>
+          <div class="info-row"><span class="info-label">Address</span><span class="info-value">Kamtjatka 10 1, 27</span></div>
+          <div class="info-row"><span class="info-label">City</span><span class="info-value">8700 Horsens</span></div>
+          <div class="info-row"><span class="info-label">Phone</span><span class="info-value">50186226</span></div>
+          <div class="info-row"><span class="info-label">Email</span><span class="info-value">iulianplop.a@gmail.com</span></div>
+        </div>
+        <div class="card"><div class="card-title"><span class="dot"></span>Employment</div>
+          <div class="info-row"><span class="info-label">Position</span><span class="info-value"><span class="badge badge-blue">Lagermedarbejder</span></span></div>
+          <div class="info-row"><span class="info-label">English</span><span class="info-value">Warehouse Worker</span></div>
+          <div class="info-row"><span class="info-label">Start Date</span><span class="info-value">21 October 2025</span></div>
+          <div class="info-row"><span class="info-label">Type</span><span class="info-value"><span class="badge badge-amber">Hourly</span></span></div>
+          <div class="info-row"><span class="info-label">Tasks</span><span class="info-value">Lageropgaver</span></div>
+          <div class="info-row"><span class="info-label">Grade</span><span class="info-value">10.875 / 37.000</span></div>
+        </div>
+        <div class="card"><div class="card-title"><span class="dot"></span>Company</div>
+          <div class="info-row"><span class="info-label">Company</span><span class="info-value">REMA Distribution Danmark A/S</span></div>
+          <div class="info-row"><span class="info-label">CVR</span><span class="info-value">39 55 42 16</span></div>
+          <div class="info-row"><span class="info-label">Workplace</span><span class="info-value">Marsallé 32, 8700 Horsens</span></div>
+          <div class="info-row"><span class="info-label">Phone</span><span class="info-value">88 81 60 00</span></div>
+          <div class="info-row"><span class="info-label">Web</span><span class="info-value">remadistribution.dk</span></div>
+          <div class="info-row"><span class="info-label">Signed</span><span class="info-value"><span class="badge badge-green">20/10/2025</span></span></div>
+        </div>
+        <div class="card"><div class="card-title"><span class="dot"></span>Terms</div>
+          <div class="info-row"><span class="info-label">Hours</span><span class="info-value">21.75h / 14 days</span></div>
+          <div class="info-row"><span class="info-label">Rate</span><span class="info-value" style="color:var(--accent-green)">163.35 DKK/h</span></div>
+          <div class="info-row"><span class="info-label">Fridagsopsparing</span><span class="info-value">6.75%</span></div>
+          <div class="info-row"><span class="info-label">Særlig Opsparing</span><span class="info-value">9%</span></div>
+          <div class="info-row"><span class="info-label">Payment</span><span class="info-value"><span class="badge badge-purple">Monthly Arrears</span></span></div>
+          <div class="info-row"><span class="info-label">Signed By</span><span class="info-value">Allan Ravn</span></div>
+        </div>
+        <div class="card"><div class="card-title"><span class="dot"></span>Pension &amp; Insurance</div>
+          <div class="info-row"><span class="info-label">Provider</span><span class="info-value">PensionDanmark</span></div>
+          <div class="info-row"><span class="info-label">Employer</span><span class="info-value" style="color:var(--accent-green)">11%</span></div>
+          <div class="info-row"><span class="info-label">Employee</span><span class="info-value">2%</span></div>
+          <div class="info-row"><span class="info-label">Total</span><span class="info-value"><span class="badge badge-green">13%</span></span></div>
+          <div class="info-row"><span class="info-label">Health</span><span class="info-value">PensionDanmark</span></div>
+        </div>
+        <div class="card"><div class="card-title"><span class="dot"></span>Collective Agreement</div>
+          <div class="info-row"><span class="info-label">Agreement</span><span class="info-value">Lageroverenskomsten</span></div>
+          <div class="info-row"><span class="info-label">Parties</span><span class="info-value">Dansk Erhverv &amp; 3F</span></div>
+          <div class="info-row"><span class="info-label">Section</span><span class="info-value">3FU</span></div>
+          <div class="info-row"><span class="info-label">Insurance</span><span class="info-value">ATP + Arbejdsskade</span></div>
+          <div class="info-row"><span class="info-label">Termination</span><span class="info-value">Per agreement</span></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+  <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('ServiceWorker registered:', reg.scope))
+          .catch(err => console.log('ServiceWorker registration failed:', err));
+      });
+    }
+  </script>
+</body>
+</html>
