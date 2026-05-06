@@ -276,18 +276,16 @@ function renderDashboard() {
   const summerBonusGross = 8000;
   const winterBonusGross = 8000;
   
+  // Feriepenge: actual from payslips, projected at 12.5% of future gross
   const actualFeriepenge = SALARY_DATA.reduce((s,m) => s + m.feriepenge, 0);
-  const futureFeriepenge = futureGross * 0.125;
-  const holidayPayGross = actualFeriepenge + futureFeriepenge;
+  const projectedFeriepenge = futureGross * 0.125;
+  const totalFeriepengeGross = actualFeriepenge + projectedFeriepenge;
   
-  // Update progress bar
-  const ferieValEl = document.getElementById('dynamic-holiday-earn-val');
-  if (ferieValEl) ferieValEl.textContent = fmt(holidayPayGross);
-  const ferieProgEl = document.getElementById('holiday-earn-progress');
-  if (ferieProgEl) {
-    const fPct = Math.min(100, (holidayPayGross / 35000) * 100);
-    ferieProgEl.style.width = fPct + '%';
-  }
+  // Net calculation for Feriepenge: Gross × (1-8% AM) × (1-38% tax)
+  const ferieNetMultiplier = (1 - RATES.amPct) * (1 - RATES.taxPct);
+  const actualFerieNet = actualFeriepenge * ferieNetMultiplier;
+  const projectedFerieNet = projectedFeriepenge * ferieNetMultiplier;
+  const totalFerieNet = totalFeriepengeGross * ferieNetMultiplier;
   
   const calcBonusNet = (gross) => {
     const am = gross * RATES.amPct;
@@ -295,8 +293,8 @@ function renderDashboard() {
   };
 
   // Total = actual payslips + calendar projection + bonuses/holiday pay
-  const totalWorkNetYear = actualNet + futureNet + calcBonusNet(summerBonusGross) + calcBonusNet(winterBonusGross) + calcBonusNet(holidayPayGross);
-  const totalGrossYear = actualGross + futureGross + summerBonusGross + winterBonusGross + holidayPayGross;
+  const totalWorkNetYear = actualNet + futureNet + calcBonusNet(summerBonusGross) + calcBonusNet(winterBonusGross) + calcBonusNet(totalFeriepengeGross);
+  const totalGrossYear = actualGross + futureGross + summerBonusGross + winterBonusGross + totalFeriepengeGross;
   
   // Calculate SU Net for the whole year (assumes 6820 gross standard, 38% tax on B-card)
   const SU_GROSS = 6820;
@@ -319,7 +317,36 @@ function renderDashboard() {
   document.getElementById('stat-total-hours-label').textContent = `Hours Worked So Far (Jan–${ALL_MONTH_SHORT[LAST_ACTUAL_MONTH - 1]})`;
   document.getElementById('stat-total-pension').textContent = fmt(actualPension);
   document.getElementById('stat-total-pension-label').textContent = `Pension Deposited So Far (Jan–${ALL_MONTH_SHORT[LAST_ACTUAL_MONTH - 1]})`;
-  document.getElementById('stat-holiday-pay').textContent = fmt(holidayPayGross);
+
+  // ── Feriepenge Tracker ──
+  document.getElementById('ferie-actual-gross').textContent = fmt(actualFeriepenge);
+  document.getElementById('ferie-actual-gross-label').textContent = `Earned So Far — Gross (Jan–${ALL_MONTH_SHORT[LAST_ACTUAL_MONTH - 1]})`;
+  document.getElementById('ferie-actual-net').textContent = fmt(actualFerieNet);
+  document.getElementById('ferie-actual-net-label').textContent = `Earned So Far — Net (Jan–${ALL_MONTH_SHORT[LAST_ACTUAL_MONTH - 1]})`;
+  document.getElementById('ferie-proj-gross').textContent = fmt(projectedFeriepenge);
+  document.getElementById('ferie-proj-gross-label').textContent = `Projected Remaining — Gross (${ALL_MONTH_SHORT[FIRST_PROJECTED_MONTH - 1]}–Dec)`;
+  document.getElementById('ferie-proj-net').textContent = fmt(projectedFerieNet);
+  document.getElementById('ferie-proj-net-label').textContent = `Projected Remaining — Net (${ALL_MONTH_SHORT[FIRST_PROJECTED_MONTH - 1]}–Dec)`;
+  document.getElementById('ferie-total-gross').textContent = fmt(totalFeriepengeGross);
+  document.getElementById('ferie-total-net').textContent = fmt(totalFerieNet);
+  document.getElementById('ferie-formula').textContent = `${fmt(totalFeriepengeGross)} × 0.92 × 0.62 = ${fmt(totalFerieNet)}`;
+  
+  // Progress bar: earned vs total
+  const ferieProgEl = document.getElementById('holiday-earn-progress');
+  if (ferieProgEl) {
+    const fPct = Math.min(100, (actualFeriepenge / totalFeriepengeGross) * 100);
+    ferieProgEl.style.width = fPct + '%';
+  }
+  document.getElementById('ferie-progress-actual').textContent = `Earned: ${fmt(actualFeriepenge)}`;
+  document.getElementById('ferie-progress-target').textContent = `Total: ${fmt(totalFeriepengeGross)}`;
+  
+  // Vacation days: 2.08 per month worked
+  const vacDays = (SALARY_DATA.length * 2.08).toFixed(2);
+  document.getElementById('ferie-vac-days').textContent = `${vacDays} days`;
+  
+  // Bonus net values
+  document.getElementById('bonus-summer-net').textContent = fmt(calcBonusNet(summerBonusGross));
+  document.getElementById('bonus-winter-net').textContent = fmt(calcBonusNet(winterBonusGross));
 
   // Bar chart — actual months (dark green) + projected months (light green)
   const allMonths = [];
@@ -523,19 +550,21 @@ function renderProjection() {
     monthlyProj.push({ month: m, ...p });
   }
 
-  // Bonuses & Holiday Pay (All before tax)
+  // Bonuses & Holiday Pay
   const summerBonusGross = 8000;
   const winterBonusGross = 8000;
   const actualFeriepenge = SALARY_DATA.reduce((s,m) => s + m.feriepenge, 0);
-  const holidayPayGross = actualFeriepenge + (futureGross * 0.125);
+  const totalFeriepengeGross = actualFeriepenge + (futureGross * 0.125);
+  const ferieNetMultiplier = (1 - RATES.amPct) * (1 - RATES.taxPct);
+  const totalFerieNet = totalFeriepengeGross * ferieNetMultiplier;
 
   const calcBonusNet = (gross) => {
     const am = gross * RATES.amPct;
     return (gross - am) * (1 - RATES.taxPct);
   };
 
-  const totalBonusNet = calcBonusNet(summerBonusGross) + calcBonusNet(winterBonusGross) + calcBonusNet(holidayPayGross);
-  const totalBonusGross = summerBonusGross + winterBonusGross + holidayPayGross;
+  const totalBonusNet = calcBonusNet(summerBonusGross) + calcBonusNet(winterBonusGross) + calcBonusNet(totalFeriepengeGross);
+  const totalBonusGross = summerBonusGross + winterBonusGross + totalFeriepengeGross;
 
   // Calculate SU Net for the whole year
   const SU_GROSS = 6820;
@@ -551,10 +580,13 @@ function renderProjection() {
   const totalSuNetYear = suMonthsCount * suNetPerMonth;
   const suReceivedSoFar = suMonthsPast * suNetPerMonth;
 
-  // Year total = actual + calendar projection + bonuses + holiday pay
   const totalWorkNet = actualNet + futureNet + totalBonusNet;
   const totalGross = actualGross + futureGross + totalBonusGross;
   const combinedGrandNet = totalWorkNet + totalSuNetYear;
+
+  // Feriepenge breakdown for projection page
+  const projFerieGross = futureGross * 0.125;
+  const projFerieNet = projFerieGross * ferieNetMultiplier;
 
   document.getElementById('proj-earned').textContent = fmt(actualNet);
   document.getElementById('proj-earned-label').textContent = `Work Net Received So Far (Jan–${ALL_MONTH_SHORT[LAST_ACTUAL_MONTH - 1]})`;
@@ -568,19 +600,15 @@ function renderProjection() {
   document.getElementById('proj-su-net-label').textContent = `Full Year SU Net (${suMonthsCount} months)`;
   document.getElementById('proj-grand-net').textContent = fmt(combinedGrandNet);
 
-  // Projection table
+  // Projection table — calculate holPay once outside the map
+  const holPay = totalFeriepengeGross;
+
   document.getElementById('proj-table-title').textContent = `Monthly Projection (${ALL_MONTH_NAMES[FIRST_PROJECTED_MONTH - 1]}–December) — Based on Calendar`;
   document.getElementById('proj-table-body').innerHTML = monthlyProj.map(p => {
-    // We calculate total holiday pay earned year-to-date and future to get the May payout
-    const actFerie = SALARY_DATA.reduce((s,m) => s + m.feriepenge, 0);
-    const futFerie = futureGross * 0.125;
-    const holPay = actFerie + futFerie;
-
-    // Show what bonuses land in this month (shown as Gross, since the table shows Gross)
     let bonusNote = '';
-    if (p.month === 5) bonusNote = `<div style="font-size:0.65rem;color:var(--accent-blue);margin-top:2px">+${fmt(holPay)} Holiday Pay (Gross)</div><div style="font-size:0.6rem;color:var(--text-muted)">SU uses: (${fmt(p.gross)}+${fmt(holPay)})×0.92 = ${fmt((p.gross + holPay) * 0.92)}</div>`;
-    if (p.month === 6) bonusNote = `<div style="font-size:0.65rem;color:var(--accent-amber);margin-top:2px">+8.000 Summer Bonus (Gross)</div><div style="font-size:0.6rem;color:var(--text-muted)">SU uses: (${fmt(p.gross)}+8.000)×0.92 = ${fmt((p.gross + 8000) * 0.92)}</div>`;
-    if (p.month === 12) bonusNote = `<div style="font-size:0.65rem;color:var(--accent-amber);margin-top:2px">+8.000 Winter Bonus (Gross)</div><div style="font-size:0.6rem;color:var(--text-muted)">SU uses: (${fmt(p.gross)}+8.000)×0.92 = ${fmt((p.gross + 8000) * 0.92)}</div>`;
+    if (p.month === 5) bonusNote = `<div style="font-size:0.65rem;color:var(--accent-blue);margin-top:2px">+${fmt(holPay)} Holiday Pay — Gross (paid May) | Net: ~${fmt(holPay * ferieNetMultiplier)}</div><div style="font-size:0.6rem;color:var(--text-muted)">SU uses: (${fmt(p.gross)}+${fmt(holPay)})×0.92 = ${fmt((p.gross + holPay) * 0.92)}</div>`;
+    if (p.month === 6) bonusNote = `<div style="font-size:0.65rem;color:var(--accent-amber);margin-top:2px">+8.000 kr Summer Bonus — Gross | Net: ~${fmt(calcBonusNet(8000))}</div><div style="font-size:0.6rem;color:var(--text-muted)">SU uses: (${fmt(p.gross)}+8.000)×0.92 = ${fmt((p.gross + 8000) * 0.92)}</div>`;
+    if (p.month === 12) bonusNote = `<div style="font-size:0.65rem;color:var(--accent-amber);margin-top:2px">+8.000 kr Winter Bonus — Gross | Net: ~${fmt(calcBonusNet(8000))}</div><div style="font-size:0.6rem;color:var(--text-muted)">SU uses: (${fmt(p.gross)}+8.000)×0.92 = ${fmt((p.gross + 8000) * 0.92)}</div>`;
     // SU net for this month
     const hasSU = suMonths[p.month] === 'su';
     const suNetMonth = hasSU ? (6820 * (1 - RATES.taxPct)) : 0;
@@ -713,6 +741,13 @@ function renderSU() {
     rows.push({ month: m, name: fullNames[m-1], short: monthNames[m-1], income, limit, diff, type: suMonths[m]||'su', isPast: m<=LAST_ACTUAL_MONTH });
   }
 
+  // Pre-calculate dynamic Feriepenge once (same formula as rest of dashboard)
+  const suActFerie = SALARY_DATA.reduce((s,m) => s + m.feriepenge, 0);
+  let suFutGross = 0;
+  for (let m = FIRST_PROJECTED_MONTH; m <= 12; m++) { suFutGross += calcMonthProjection(m).gross; }
+  const suHolPayGross = suActFerie + (suFutGross * 0.125);
+  const suHolPayAIndkomst = suHolPayGross * (1 - RATES.amPct);
+
   const remaining = annualLimit - annualIncome;
   const pct = Math.min(100, (annualIncome / annualLimit) * 100);
   const isOver = annualIncome > annualLimit;
@@ -757,17 +792,11 @@ function renderSU() {
     const barPct = Math.min(100, (r.income / r.limit) * 100);
     const overMonth = r.income > r.limit;
     
-    // Calculate dynamic holiday pay
-    const actFerie = SALARY_DATA.reduce((s,m) => s + m.feriepenge, 0);
-    let futGross = 0;
-    for (let m = FIRST_PROJECTED_MONTH; m <= 12; m++) { futGross += calcMonthProjection(m).gross; }
-    const holPay = actFerie + (futGross * 0.125);
-
     // Show bonus breakdown in income column with A-indkomst amounts
     let bonusBadge = '';
-    if (r.month === 5 && r.month > LAST_ACTUAL_MONTH) bonusBadge = `<div style="font-size:0.6rem;color:var(--accent-blue);margin-top:1px">🌴 incl. ${fmt(holPay * (1 - RATES.amPct))} Holiday Pay</div>`;
-    if (r.month === 6 && r.month > LAST_ACTUAL_MONTH) bonusBadge = `<div style="font-size:0.6rem;color:var(--accent-amber);margin-top:1px">☀️ incl. ${fmt(8000 * (1 - RATES.amPct))} Summer Bonus</div>`;
-    if (r.month === 12 && r.month > LAST_ACTUAL_MONTH) bonusBadge = `<div style="font-size:0.6rem;color:var(--accent-amber);margin-top:1px">❄️ incl. ${fmt(8000 * (1 - RATES.amPct))} Winter Bonus</div>`;
+    if (r.month === 5 && r.month > LAST_ACTUAL_MONTH) bonusBadge = `<div style="font-size:0.6rem;color:var(--accent-blue);margin-top:1px">🌴 incl. ${fmt(suHolPayAIndkomst)} Feriepenge (A-indkomst)</div>`;
+    if (r.month === 6 && r.month > LAST_ACTUAL_MONTH) bonusBadge = `<div style="font-size:0.6rem;color:var(--accent-amber);margin-top:1px">☀️ incl. ${fmt(8000 * (1 - RATES.amPct))} Summer Bonus (A-indkomst)</div>`;
+    if (r.month === 12 && r.month > LAST_ACTUAL_MONTH) bonusBadge = `<div style="font-size:0.6rem;color:var(--accent-amber);margin-top:1px">❄️ incl. ${fmt(8000 * (1 - RATES.amPct))} Winter Bonus (A-indkomst)</div>`;
     
     return `<tr>
       <td><strong>${r.name}</strong></td>

@@ -40,7 +40,6 @@
         <div class="card stat-card"><div class="stat-icon amber">📊</div><div class="stat-value" id="stat-avg-monthly">–</div><div class="stat-label">Avg Monthly Net (All Income)</div></div>
         <div class="card stat-card"><div class="stat-icon red">⏱️</div><div class="stat-value" id="stat-total-hours">–</div><div class="stat-label" id="stat-total-hours-label">Hours Worked So Far</div></div>
         <div class="card stat-card"><div class="stat-icon purple">🏦</div><div class="stat-value" id="stat-total-pension">–</div><div class="stat-label" id="stat-total-pension-label">Pension Deposited So Far</div></div>
-        <div class="card stat-card"><div class="stat-icon blue">🌴</div><div class="stat-value" id="stat-holiday-pay">–</div><div class="stat-label">Holiday Pay (Gross, Before Tax)</div></div>
       </div>
       <div class="card full-width">
         <div class="card-title"><span class="dot"></span>Net Pay — Actual vs Projected</div>
@@ -57,22 +56,52 @@
           <tbody id="monthly-breakdown-body"></tbody>
         </table></div>
       </div>
+
+      <!-- ── Feriepenge (Holiday Pay) Tracker ── -->
       <div class="card full-width">
-        <div class="card-title"><span class="dot"></span>Bonuses &amp; Extra Pay</div>
+        <div class="card-title"><span class="dot"></span>🌴 Feriepenge (Holiday Pay) Tracker</div>
+        <div class="stats-grid" style="margin-bottom:16px">
+          <div class="card stat-card"><div class="stat-icon green">✅</div><div class="stat-value" id="ferie-actual-gross">–</div><div class="stat-label" id="ferie-actual-gross-label">Earned So Far — Gross (Jan–Apr)</div></div>
+          <div class="card stat-card"><div class="stat-icon green">💰</div><div class="stat-value" id="ferie-actual-net">–</div><div class="stat-label" id="ferie-actual-net-label">Earned So Far — Net (Jan–Apr)</div></div>
+          <div class="card stat-card"><div class="stat-icon blue">🔮</div><div class="stat-value" id="ferie-proj-gross">–</div><div class="stat-label" id="ferie-proj-gross-label">Projected Remaining — Gross (May–Dec)</div></div>
+          <div class="card stat-card"><div class="stat-icon blue">💎</div><div class="stat-value" id="ferie-proj-net">–</div><div class="stat-label" id="ferie-proj-net-label">Projected Remaining — Net (May–Dec)</div></div>
+        </div>
         <div class="two-col" style="margin-bottom:0">
           <div>
             <div class="info-row" style="flex-direction:column;align-items:flex-start;gap:8px">
-              <div style="display:flex;justify-content:space-between;width:100%"><span class="info-label">Feriepenge Earned (12.5%)</span><span class="info-value" style="color:var(--accent-green)" id="dynamic-holiday-earn-val">–</span></div>
-              <div style="height:10px;width:100%;background:var(--bg-subtle);border-radius:5px;overflow:hidden">
-                <div id="holiday-earn-progress" style="height:100%;width:0%;background:linear-gradient(90deg, #2d936c, #1a7a5a);transition:width 0.6s"></div>
+              <div style="display:flex;justify-content:space-between;width:100%"><span class="info-label" id="ferie-total-gross-label">Full Year Feriepenge — Gross (Jan–Dec)</span><span class="info-value" style="color:var(--accent-green);font-size:1.1rem;font-weight:800" id="ferie-total-gross">–</span></div>
+              <div style="height:12px;width:100%;background:var(--bg-subtle);border-radius:6px;overflow:hidden">
+                <div id="holiday-earn-progress" style="height:100%;width:0%;background:linear-gradient(90deg, #2d936c, #1a7a5a);transition:width 0.6s;border-radius:6px"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;width:100%;font-size:0.7rem;color:var(--text-muted)">
+                <span id="ferie-progress-actual">Earned: –</span>
+                <span id="ferie-progress-target">Target: –</span>
               </div>
             </div>
-            <div class="info-row"><span class="info-label">Summer Bonus (before tax)</span><span class="info-value" style="color:var(--accent-amber)">~8.000 DKK</span></div>
-            <div class="info-row"><span class="info-label">Winter Bonus (before tax)</span><span class="info-value" style="color:var(--accent-amber)">~8.000 DKK</span></div>
+            <div class="info-row"><span class="info-label">Full Year Feriepenge — Net (after AM + tax)</span><span class="info-value" style="color:var(--accent-green);font-weight:700" id="ferie-total-net">–</span></div>
+            <div class="info-row"><span class="info-label" style="font-size:0.72rem;color:var(--text-muted)">Formula: Gross × 0.92 (AM) × 0.62 (Tax) = Net</span><span class="info-value" style="font-size:0.72rem;color:var(--text-muted)" id="ferie-formula">–</span></div>
           </div>
           <div>
-            <div class="info-row"><span class="info-label">Vacation Days Accrued</span><span class="info-value"><span class="badge badge-green">12.15 days</span></span></div>
+            <div class="info-row"><span class="info-label">Vacation Days Accrued</span><span class="info-value"><span class="badge badge-green" id="ferie-vac-days">–</span></span></div>
             <div class="info-row"><span class="info-label">Feriefridage Remaining</span><span class="info-value"><span class="badge badge-blue">5.00 days</span></span></div>
+            <div class="info-row"><span class="info-label">Payout Month</span><span class="info-value"><span class="badge badge-amber">May (with salary)</span></span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Bonuses ── -->
+      <div class="card full-width">
+        <div class="card-title"><span class="dot"></span>Bonuses & Extra Pay</div>
+        <div class="two-col" style="margin-bottom:0">
+          <div>
+            <div class="info-row"><span class="info-label">Summer Bonus (Gross, before tax)</span><span class="info-value" style="color:var(--accent-amber)">~8.000 DKK</span></div>
+            <div class="info-row"><span class="info-label">Summer Bonus (Net, after AM + tax)</span><span class="info-value" style="color:var(--accent-green)" id="bonus-summer-net">–</span></div>
+            <div class="info-row"><span class="info-label">Payout</span><span class="info-value"><span class="badge badge-amber">June (with salary)</span></span></div>
+          </div>
+          <div>
+            <div class="info-row"><span class="info-label">Winter Bonus (Gross, before tax)</span><span class="info-value" style="color:var(--accent-amber)">~8.000 DKK</span></div>
+            <div class="info-row"><span class="info-label">Winter Bonus (Net, after AM + tax)</span><span class="info-value" style="color:var(--accent-green)" id="bonus-winter-net">–</span></div>
+            <div class="info-row"><span class="info-label">Payout</span><span class="info-value"><span class="badge badge-amber">December (with salary)</span></span></div>
           </div>
         </div>
       </div>
