@@ -210,7 +210,10 @@ function calcMonthProjection(month) {
   // Calculate historical bonus per day (estimated from historical hours)
   const histTotalBonus = SALARY_DATA.reduce((s,m) => s + m.perfBonus, 0);
   const histTotalHours = SALARY_DATA.reduce((s,m) => s + m.hours, 0);
-  const histTotalDays = histTotalHours / shiftHours;
+  // Bonus per day: use a fixed 7.25h base for historical average to keep projection stable
+  // even if user changes shift hours mid-session
+  const HIST_SHIFT_HOURS = 7.25;
+  const histTotalDays = histTotalHours / HIST_SHIFT_HOURS;
   const avgBonusPerDay = histTotalDays > 0 ? (histTotalBonus / histTotalDays) : 0;
   
   const projectedBonus = avgBonusPerDay * totalWorkedDays;
@@ -380,7 +383,7 @@ function renderDashboard() {
       const m = FIRST_PROJECTED_MONTH + i;
       const proj = calcMonthProjection(m);
       return `<tr style="opacity:${proj.totalDays ? 1 : 0.4}">
-        <td><strong>${ALL_MONTH_NAMES[m-1]}</strong></td><td>From calendar</td><td>${(proj.totalDays * shiftHours).toFixed(0)}h</td>
+        <td><strong>${ALL_MONTH_NAMES[m-1]}</strong></td><td>From calendar</td><td>${proj.expectedHours.toFixed(1)}h</td>
         <td>${fmt(proj.gross)}</td><td style="color:var(--accent-blue);font-weight:600">${fmt(proj.net)}</td>
         <td><span class="badge badge-blue">📅 ${proj.totalDays} days</span></td>
       </tr>`;
