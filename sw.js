@@ -1,4 +1,4 @@
-const CACHE_NAME = 'r1k-dash-v1';
+const CACHE_NAME = 'r1k-dash-v2';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
